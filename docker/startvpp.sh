@@ -26,7 +26,7 @@ until ls -l /run/vpp/cli-vpp2.sock ; do
 done
 
 # Sleep a little bit more
-sleep 10
+sleep 30
 
 sudo vppctl -s /run/vpp/cli-vpp1.sock create host-interface name vpp1out
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int state host-vpp1out up
