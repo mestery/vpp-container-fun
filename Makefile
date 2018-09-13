@@ -66,9 +66,11 @@ travis:
 test:
 	@docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp && sleep 15
 	docker logs vpp
+	docker exec -it vpp vppctl -s /run/vpp/cli-vpp1.sock show version
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp1.sock show int
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp1.sock show int addr
+	docker exec -it vpp vppctl -s /run/vpp/cli-vpp2.sock show version
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp2.sock show int
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp2.sock show int addr
 	docker exec -it vpp ip a
-	@docker exec -it vpp ping -c 5 10.10.2.2
+	docker exec -it vpp ping -c 5 10.10.2.2
