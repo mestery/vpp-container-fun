@@ -24,9 +24,16 @@ until ls -l /run/vpp/cli-vpp2.sock ; do
 	((cnt=cnt-1)) || return 1
 	sleep 1
 done
-
-# Sleep a little bit more
-sleep 30
+typeset -i cnt=60
+until sudo vppctl -s /run/vpp/cli-vpp1.sock show version ; do
+	((cnt=cnt-1)) || return 1
+	sleep 1
+done
+typeset -i cnt=60
+until sudo vppctl -s /run/vpp/cli-vpp2.sock show version ; do
+	((cnt=cnt-1)) || return 1
+	sleep 1
+done
 
 sudo vppctl -s /run/vpp/cli-vpp1.sock create host-interface name vpp1out
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int state host-vpp1out up
