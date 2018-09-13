@@ -18,4 +18,3 @@ before_script:
 script:
   - yamllint -c .yamllint.yml $(git ls-files '*.yaml' '*.yml')
   - make all
-
