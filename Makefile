@@ -62,3 +62,7 @@ travis:
 	@echo "Files:"
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
+.PHONY: test
+test:
+	@docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp
+	@docker exec -it vpp ping -c 5 10.10.2.2

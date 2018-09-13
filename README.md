@@ -23,7 +23,7 @@ docker build -t vpp-container-fun/vpp -f Dockerfile .
 To start the container:
 
 ```
-docker run -itd --name vpp vpp-container-fun/vpp
+docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp
 ```
 
 To explore the containers:
