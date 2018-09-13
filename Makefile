@@ -64,5 +64,5 @@ travis:
 
 .PHONY: test
 test:
-	@docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp && sleep 5
+	@docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp && sleep 15
 	@docker exec -it vpp ping -c 5 10.10.2.2
