@@ -64,7 +64,7 @@ travis:
 
 .PHONY: test
 test:
-	@docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp && sleep 15
+	@docker run --cap-add NET_ADMIN -id --name vpp vpp-container-fun/vpp && sleep 15
 	docker logs vpp
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp1.sock show version
 	docker exec -it vpp vppctl -s /run/vpp/cli-vpp1.sock show int
