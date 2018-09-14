@@ -24,13 +24,14 @@ until ls -l /run/vpp/cli-vpp2.sock ; do
 	((cnt=cnt-1)) || return 1
 	sleep 1
 done
-typeset -i cnt=60
-until sudo vppctl -s /run/vpp/cli-vpp1.sock create host-interface name vpp1out ; do
-	((cnt=cnt-1)) || return 1
-	sleep 1
-done
 
 sudo vppctl -s /run/vpp/cli-vpp1.sock create host-interface name vpp1out
+typeset -i cnt=60
+until sudo vppctl -s /run/vpp/cli-vpp1.sock show int | grep vpp1out ; do
+	((cnt=cnt-1)) || return 1
+	sleep 1
+	sudo vppctl -s /run/vpp/cli-vpp1.sock create host-interface name vpp1out
+done
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int state host-vpp1out up
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int ip address host-vpp1out 10.10.1.2/24
 
