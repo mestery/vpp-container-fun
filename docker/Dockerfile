@@ -7,6 +7,7 @@ COPY startup2.conf /etc/vpp/startup2.conf
 COPY config1.txt /etc/vpp/config1.txt
 COPY config2.txt /etc/vpp/config2.txt
 
-RUN yum -y update; yum -y install vpp vpp-plugins vpp-api-python
+RUN yum -y update; yum -y install sudo iproute vpp vpp-plugins vpp-api-python
 
-CMD /startvpp.sh
+ENTRYPOINT /startvpp.sh
+#CMD /startvpp.sh
