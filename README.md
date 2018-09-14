@@ -36,13 +36,21 @@ To run the tests:
 make test
 ```
 
-To start the container:
+If you want to manually start the container, do the following on a Linux host
+with Docker:
+
+```
+docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp vpp-container-fun/vpp
+```
+
+To manually start the container on a Docker for Mac, the IPC_LOCK capability is not
+required (though it will work if you add it):
 
 ```
 docker run --cap-add NET_ADMIN -itd --name vpp vpp-container-fun/vpp
 ```
 
-To explore the containers:
+To explore the containers and run vppctl by hand:
 
 ```
 docker exec -it vpp bash
