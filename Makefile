@@ -33,6 +33,7 @@ endif
 
 DOCKERBUILD=docker build ${HTTPBUILD} ${HTTPSBUILD}
 DOCKER_VPP_CONTAINER_FUN=vpp-container-fun/vpp
+DOCKER_VPP_ALLINONE=vpp-container-fun/vpp-allinone
 
 .PHONY: all check docker-build
 #
@@ -44,8 +45,11 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build:
-	@cd docker && ${DOCKERBUILD} -t ${DOCKER_VPP_CONTAINER_FUN} -f Dockerfile .
+docker-build: docker-build-allinone
+
+.PHONY: docker-build-allinone
+docker-build-allinone:
+	@cd docker/allinone && ${DOCKERBUILD} -t ${DOCKER_VPP_ALLINONE} -f Dockerfile .
 
 # Travis
 .PHONY: travis
@@ -64,5 +68,5 @@ travis:
 
 .PHONY: test
 test:
-	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp vpp-container-fun/vpp && sleep 15
-	@docker exec -it vpp ping -c 5 10.10.2.2
+	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vppallinone ${DOCKER_VPP_ALLINONE} && sleep 15
+	@docker exec -it vppallinone ping -c 5 10.10.2.2
