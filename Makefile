@@ -32,8 +32,10 @@ HTTPSBUILD=--build-arg HTTPS_PROXY=$(HTTPS_PROXY)
 endif
 
 DOCKERBUILD=docker build ${HTTPBUILD} ${HTTPSBUILD}
-DOCKER_VPP_CONTAINER_FUN=vpp-container-fun/vpp
 DOCKER_VPP_ALLINONE=vpp-container-fun/vpp-allinone
+DOCKER_VPP_MULTIPLE_BASE=vpp-container-fun/multiple-base
+DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
+DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
 
 .PHONY: all check docker-build
 #
@@ -51,6 +53,12 @@ docker-build: docker-build-allinone
 docker-build-allinone:
 	@cd docker/allinone && ${DOCKERBUILD} -t ${DOCKER_VPP_ALLINONE} -f Dockerfile .
 
+.PHONY: docker-build-multiple
+docker-build-multiple:
+	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE_BASE} -f Dockerfile.base .
+	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE1} -f Dockerfile.vpp1 .
+	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE2} -f Dockerfile.vpp2 .
+
 # Travis
 .PHONY: travis
 travis:
@@ -66,7 +74,27 @@ travis:
 	@echo "Files:"
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
-.PHONY: test
-test:
+.PHONY: run
+run: run-allinone run-multiple
+
+.PHONY: run-allinone
+run-allinone:
 	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vppallinone ${DOCKER_VPP_ALLINONE} && sleep 15
+
+.PHONY: run-multiple
+run-multiple:
+	@mkdir -p run
+	@rm -rf run/vpp*
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
+
+.PHONY: test
+test: test-allinone test-multiple
+
+.PHONY: test-allinone
+test-allinone:
 	@docker exec -it vppallinone ping -c 5 10.10.2.2
+
+.PHONY: test-multiple
+test-multiple:
+	@docker exec -it vpp1 ping -c 5 10.10.2.2
