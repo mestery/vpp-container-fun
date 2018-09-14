@@ -47,7 +47,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone
+docker-build: docker-build-allinone docker-build-multiple
 
 .PHONY: docker-build-allinone
 docker-build-allinone:
