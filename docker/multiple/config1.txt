@@ -1,0 +1,3 @@
+create interface memif id 0 master
+set in state memif0/0 up
+set int ip address memif0/0 10.10.2.1/24

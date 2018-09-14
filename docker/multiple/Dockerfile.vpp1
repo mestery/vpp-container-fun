@@ -1,0 +1,3 @@
+FROM vpp-container-fun/multiple-base
+
+ENTRYPOINT /startvpp1.sh
