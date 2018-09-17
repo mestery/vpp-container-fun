@@ -1,3 +1,7 @@
-FROM vpp-container-fun/multiple-base
+FROM vpp-container-fun/base
+
+COPY startvpp1.sh /
+COPY startup1.conf /etc/vpp/startup1.conf
+COPY config1.txt /etc/vpp/config1.txt
 
 ENTRYPOINT /startvpp1.sh

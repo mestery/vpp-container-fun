@@ -33,7 +33,7 @@ endif
 
 DOCKERBUILD=docker build ${HTTPBUILD} ${HTTPSBUILD}
 DOCKER_VPP_ALLINONE=vpp-container-fun/vpp-allinone
-DOCKER_VPP_MULTIPLE_BASE=vpp-container-fun/multiple-base
+DOCKER_VPP_BASE=vpp-container-fun/base
 DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
 DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
 
@@ -49,13 +49,16 @@ check:
 
 docker-build: docker-build-allinone docker-build-multiple
 
+.PHONY: docker-build-base
+docker-build-base:
+	@cd docker/base && ${DOCKERBUILD} -t ${DOCKER_VPP_BASE} -f Dockerfile.base .
+
 .PHONY: docker-build-allinone
-docker-build-allinone:
+docker-build-allinone: docker-build-base
 	@cd docker/allinone && ${DOCKERBUILD} -t ${DOCKER_VPP_ALLINONE} -f Dockerfile .
 
 .PHONY: docker-build-multiple
-docker-build-multiple:
-	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE_BASE} -f Dockerfile.base .
+docker-build-multiple: docker-build-base
 	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE1} -f Dockerfile.vpp1 .
 	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE2} -f Dockerfile.vpp2 .
 

@@ -1,0 +1,6 @@
+FROM centos
+
+ARG REPO=release
+
+RUN curl -s https://packagecloud.io/install/repositories/fdio/${REPO}/script.rpm.sh |  bash
+RUN yum -y update; yum -y install sudo iproute vpp vpp-plugins vpp-api-python
