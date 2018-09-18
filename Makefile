@@ -36,6 +36,8 @@ DOCKER_VPP_ALLINONE=vpp-container-fun/vpp-allinone
 DOCKER_VPP_BASE=vpp-container-fun/base
 DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
 DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
+DOCKER_STRONGSWAN_VPP=vpp-container-fun/strongswan-vpp
+DOCKER_STRONGSWAN=vpp-container-fun/strongswan
 
 .PHONY: all check docker-build
 #
@@ -47,7 +49,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan
 
 .PHONY: docker-build-base
 docker-build-base:
@@ -61,6 +63,10 @@ docker-build-allinone: docker-build-base
 docker-build-multiple: docker-build-base
 	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE1} -f Dockerfile.vpp1 .
 	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE2} -f Dockerfile.vpp2 .
+
+.PHONY: docker-build-strongswan
+docker-build-strongswan: docker-build-base
+	@cd docker/strongswan && ${DOCKERBUILD} -t ${DOCKER_STRONGSWAN_VPP} -f Dockerfile.vpp .
 
 # Travis
 .PHONY: travis
@@ -78,7 +84,7 @@ travis:
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
 .PHONY: run
-run: run-allinone run-multiple
+run: run-allinone run-multiple run-strongswan
 
 .PHONY: run-allinone
 run-allinone:
@@ -91,8 +97,12 @@ run-multiple:
 	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
 	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
 
+.PHONY: run-strongswan
+run-strongswan:
+	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name strongswanvpp ${DOCKER_STRONGSWAN_VPP}
+
 .PHONY: test
-test: test-allinone test-multiple
+test: test-allinone test-multiple test-strongswan
 
 .PHONY: test-allinone
 test-allinone:
@@ -101,3 +111,7 @@ test-allinone:
 .PHONY: test-multiple
 test-multiple:
 	@docker exec -it vpp1 ping -c 5 10.10.2.2
+
+.PHONY: test-strongswan
+test-strongswan:
+	@docker exec -it strongswanvpp ping 192.168.124.100 -c 5

@@ -1,0 +1,10 @@
+FROM vpp-container-fun/base
+
+COPY startstrongswan.sh /
+COPY startvpp.sh /
+COPY startup.conf /etc/vpp/startup.conf
+
+RUN yum -y install epel-release
+RUN yum -y install strongswan tcpdump
+
+ENTRYPOINT /startvpp.sh
