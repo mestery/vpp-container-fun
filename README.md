@@ -48,3 +48,31 @@ make test-multiple
 ```
 
 Starting the containers manually is left as an exercise for the reader.
+
+StrongSwan With VPP
+===================
+
+There is another container which will setup and run a simple VPP and StrongSwan test.
+
+To build, run, and test this, do the following:
+
+```
+make docker-build-strongswan
+make run-strongswan
+make test-strongswan
+```
+
+The above will build a configuration per the diagram below:
+
+```
+               +---------------+                +----------------+      +-------+
+               |               | 10.10.1.0/24   |                |      |       | 10.10.10.10
+192.168.125.100| StrongSwan    |                | VPP Responder  +------+IPSec  |
+               | Initiator     +----------------+                |      +-------+
+               |               |                |                |
+               +---------------+ .2          .1 |                |      +-------+
+                                                |                +------+       | 192.168.124.100
+                                                +----------------+      |loop0  |
+                                                                        +-------+
+
+```
