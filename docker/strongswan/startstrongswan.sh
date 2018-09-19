@@ -15,12 +15,12 @@ conn %default
         lifetime=24h
 
 conn net-net
-        right=10.10.1.2
-        rightsubnet=192.168.124.0/24
+        right=${VPPTUNNELIP}
+        rightsubnet=${VPPSUBNET}/${VPPSUBNETMASK}
         rightauth=psk
         rightid=@vpp.home
-        left=10.10.1.1
-        leftsubnet=192.168.125.0/24
+        left=${SWANTUNNELIP}
+        leftsubnet=${SWANSUBNET}/${SWANSUBNETMASK}
         leftauth=psk
         leftid=@roadwarrior.vpn.example.com
         auto=start

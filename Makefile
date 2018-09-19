@@ -99,7 +99,7 @@ run-multiple:
 
 .PHONY: run-strongswan
 run-strongswan:
-	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name strongswanvpp ${DOCKER_STRONGSWAN_VPP}
+	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/strongswan/env.list -id --name strongswanvpp ${DOCKER_STRONGSWAN_VPP}
 
 .PHONY: test
 test: test-allinone test-multiple test-strongswan

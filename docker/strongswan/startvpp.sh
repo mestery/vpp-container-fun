@@ -9,14 +9,14 @@ set -xe
 ip link add name vpp1out type veth peer name vpp1host
 ip link set dev vpp1out up
 ip link set dev vpp1host up
-ip addr add 10.10.1.1/24 dev vpp1host
+ip addr add ${SWANTUNNELIP}/${SWANSUBNETMASK} dev vpp1host
 
 # Create host loopback IP
 ip link add name swan1 type dummy
 ip link set dev swan1 up
-ip address add 192.168.125.100/24 dev swan1
-ip route add 192.168.124.0/24 via 10.10.1.2
-ip route add 10.10.10.10/32 via 10.10.1.2
+ip address add ${SWANOUTERIP}/${SWANSUBNETMASK} dev swan1
+ip route add ${VPPSUBNET}/${VPPSUBNETMASK} via ${VPPTUNNELIP}
+ip route add ${VPPIPSECROUTE}/${VPPIPSECMASK} via ${VPPTUNNELIP}
 
 # Make sure VPP is *really* running
 typeset -i cnt=60
@@ -34,7 +34,7 @@ until sudo vppctl -s /run/vpp/cli-vpp1.sock show int | grep vpp1out ; do
 done
 
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int state host-vpp1out up
-sudo vppctl -s /run/vpp/cli-vpp1.sock set int ip address host-vpp1out 10.10.1.2/24
+sudo vppctl -s /run/vpp/cli-vpp1.sock set int ip address host-vpp1out ${VPPTUNNELIP}/${VPPSUBNETMASK}
 
 # VPP IKEv2 Configuration
 sudo vppctl -s /run/vpp/cli-vpp1.sock ikev2 profile add pr1
@@ -57,10 +57,10 @@ done
 # Create VPP loopback
 sudo vppctl -s /run/vpp/cli-vpp1.sock loopback create-interface
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface state loop0 up
-sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address loop0 192.168.124.100/24
+sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address loop0 ${VPPOUTERIP}/${VPPSUBNETMASK}
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface state ipsec0 up
-sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address ipsec0 10.10.10.10/32
-sudo vppctl -s /run/vpp/cli-vpp1.sock ip route add 192.168.125.0/24 via 10.10.10.10 ipsec0
+sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address ipsec0 ${VPPIPSECROUTE}/${VPPIPSECMASK}
+sudo vppctl -s /run/vpp/cli-vpp1.sock ip route add ${SWANSUBNET}/${SWANSUBNETMASK} via ${VPPIPSECIP} ipsec0
 
 # We do not want to exit, so ...
 tail -f /dev/null
