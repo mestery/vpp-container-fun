@@ -88,7 +88,7 @@ run: run-allinone run-multiple run-strongswan
 
 .PHONY: run-allinone
 run-allinone:
-	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vppallinone ${DOCKER_VPP_ALLINONE} && sleep 15
+	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/allinone/env.list -id --name vppallinone ${DOCKER_VPP_ALLINONE} && sleep 15
 
 .PHONY: run-multiple
 run-multiple:
