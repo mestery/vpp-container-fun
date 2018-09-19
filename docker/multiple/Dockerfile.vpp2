@@ -2,6 +2,5 @@ FROM vpp-container-fun/base
 
 COPY startvpp2.sh /
 COPY startup2.conf /etc/vpp/startup2.conf
-COPY config2.txt /etc/vpp/config2.txt
 
 ENTRYPOINT /startvpp2.sh
