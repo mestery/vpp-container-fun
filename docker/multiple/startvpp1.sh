@@ -2,6 +2,13 @@
 
 set -xe
 
+# Generate the config file
+cat > /etc/vpp/config1.txt << EOL
+create interface memif id 0 master
+set in state memif0/0 up
+set int ip address memif0/0 ${VPP1MEMIFIP}/${VPP1MEMIFMASK}
+EOL
+
 # Run the VPP daemon
 /usr/bin/vpp -c /etc/vpp/startup1.conf
 
@@ -9,8 +16,8 @@ set -xe
 ip link add name vpp1out type veth peer name vpp1host
 ip link set dev vpp1out up
 ip link set dev vpp1host up
-ip addr add 10.10.1.1/24 dev vpp1host
-ip route add 10.10.2.0/24 via 10.10.1.2
+ip addr add "${HOSTIP}"/"${HOSTMASK}" dev vpp1host
+ip route add "${MEMIFROUTE}"/"${MEMIFMASK}" via "${VPP1HOSTINTIP}"
 
 # Make sure VPP is *really* running
 typeset -i cnt=60
@@ -28,7 +35,7 @@ until sudo vppctl -s /run/vpp/cli-vpp1.sock show int | grep vpp1out ; do
 done
 
 sudo vppctl -s /run/vpp/cli-vpp1.sock set int state host-vpp1out up
-sudo vppctl -s /run/vpp/cli-vpp1.sock set int ip address host-vpp1out 10.10.1.2/24
+sudo vppctl -s /run/vpp/cli-vpp1.sock set int ip address host-vpp1out "${VPP1HOSTINTIP}"/"${VPP1HOSTINTMASK}"
 
 # We do not want to exit, so ...
 tail -f /dev/null

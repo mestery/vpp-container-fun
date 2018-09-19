@@ -94,8 +94,8 @@ run-allinone:
 run-multiple:
 	@mkdir -p run
 	@rm -rf run/vpp*
-	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
-	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
 
 .PHONY: run-strongswan
 run-strongswan:
