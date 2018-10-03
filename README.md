@@ -52,7 +52,8 @@ Starting the containers manually is left as an exercise for the reader.
 StrongSwan With VPP
 ===================
 
-There is another container which will setup and run a simple VPP and StrongSwan test.
+There is another container which will setup and run a simple VPP and StrongSwan
+test.
 
 To build, run, and test this, do the following:
 
@@ -75,4 +76,9 @@ The above will build a configuration per the diagram below:
                                                 +----------------+      |loop0  |
                                                                         +-------+
 
+StrongSwan With Integrated VPP
+==============================
+
+A second set of containers will run StrongSwan with integrated VPP charon
+drivers to allow VPP to drive the ipsec dataplane.
 ```
