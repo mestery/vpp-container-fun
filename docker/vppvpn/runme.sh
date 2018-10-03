@@ -20,7 +20,7 @@ if [ "x${EXISTS}" == "x" ] ; then
 fi
 
 #docker run --sysctl net.ipv4.conf.all.proxy_arp=1 --mac-address "${VPP_SERVER_MAC}" --net "${VPP_DOCKER_NETWORK}" --ip "${VPP_SERVER_IP}" --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./env.list -id --name vppvpnserver ${SERVERIMAGE}
-docker run --mac-address "${VPP_SERVER_MAC}" --net "${VPP_DOCKER_NETWORK}" --ip "${VPP_SERVER_IP}" --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./env.list -id --name vppvpnserver ${SERVERIMAGE}
-docker run --mac-address "${VPP_CLIENT_MAC}" --net "${VPP_DOCKER_NETWORK}" --ip "${VPP_CLIENT_IP}" --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./env.list -id --name vppvpnclient ${CLIENTIMAGE}
+docker run --mac-address "${VPP_SERVER_MAC}" --net "${VPP_DOCKER_NETWORK}" --ip "${VPP_SERVER_IP}" --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./env.list -id --name vppvpnserver "${SERVERIMAGE}"
+docker run --mac-address "${VPP_CLIENT_MAC}" --net "${VPP_DOCKER_NETWORK}" --ip "${VPP_CLIENT_IP}" --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./env.list -id --name vppvpnclient "${CLIENTIMAGE}"
 
 echo "Finished"
