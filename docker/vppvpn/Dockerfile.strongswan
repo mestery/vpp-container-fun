@@ -1,0 +1,6 @@
+FROM vpp-container-fun/base
+
+RUN yum -y install epel-release tcpdump gmp-devel vpp-lib vpp-devel gperftools-devel gperftools-libs gperftools gperf
+RUN yum -y group install "Development Tools"
+RUN git clone https://github.com/mestery/strongswan.git && cd strongswan && git fetch && git checkout vpp && cd ../
+RUN cd strongswan && ./autogen.sh && ./configure --enable-libipsec --enable-socket-vpp --enable-kernel-vpp && make && make install

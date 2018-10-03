@@ -37,7 +37,9 @@ DOCKER_VPP_BASE=vpp-container-fun/base
 DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
 DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
 DOCKER_STRONGSWAN_VPP=vpp-container-fun/strongswan-vpp
-DOCKER_STRONGSWAN=vpp-container-fun/strongswan
+DOCKER_VPPVPNBASE=vpp-container-fun/vppvpnbase
+DOCKER_VPPVPNSERVER=vpp-container-fun/vppvpnserver
+DOCKER_VPPVPNCLIENT=vpp-container-fun/vppvpnclient
 
 .PHONY: all check docker-build
 #
@@ -49,7 +51,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn
 
 .PHONY: docker-build-base
 docker-build-base:
@@ -68,6 +70,15 @@ docker-build-multiple: docker-build-base
 docker-build-strongswan: docker-build-base
 	@cd docker/strongswan && ${DOCKERBUILD} -t ${DOCKER_STRONGSWAN_VPP} -f Dockerfile.vpp .
 
+.PHONY: docker-build-vppvpnbase
+docker-build-vppvpnbase: docker-build-base
+	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNBASE} -f Dockerfile.strongswan .
+
+.PHONY: docker-build-vppvpn
+docker-build-vppvpn: docker-build-base docker-build-vppvpnbase
+	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNSERVER} -f Dockerfile.vpnserver .
+	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNCLIENT} -f Dockerfile.vpnclient .
+
 # Travis
 .PHONY: travis
 travis:
@@ -84,7 +95,7 @@ travis:
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
 .PHONY: run
-run: run-allinone run-multiple run-strongswan
+run: run-allinone run-multiple run-strongswan run-vppvpn
 
 .PHONY: run-allinone
 run-allinone:
@@ -101,8 +112,12 @@ run-multiple:
 run-strongswan:
 	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/strongswan/env.list -id --name strongswanvpp ${DOCKER_STRONGSWAN_VPP}
 
+.PHONY: run-vppvpn
+run-vppvpn:
+	@cd ./docker/vppvpn && ./runme.sh ${DOCKER_VPPVPNSERVER} ${DOCKER_VPPVPNCLIENT}
+
 .PHONY: test
-test: test-allinone test-multiple test-strongswan
+test: test-allinone test-multiple test-strongswan test-vppvpn
 
 .PHONY: test-allinone
 test-allinone:
@@ -115,3 +130,7 @@ test-multiple:
 .PHONY: test-strongswan
 test-strongswan:
 	@docker exec -it strongswanvpp ping 192.168.124.100 -c 5
+
+.PHONT: test-vppvpn
+test-vppvpn:
+	@docker exec -it vppvpnclient ping 192.168.124.100 -c 5

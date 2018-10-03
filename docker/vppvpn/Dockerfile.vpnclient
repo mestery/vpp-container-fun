@@ -1,0 +1,5 @@
+FROM vpp-container-fun/vppvpnbase
+
+COPY startvpnclient.sh /
+
+ENTRYPOINT /startvpnclient.sh
