@@ -75,10 +75,10 @@ The above will build a configuration per the diagram below:
                                                 |                +------+       | 192.168.124.100
                                                 +----------------+      |loop0  |
                                                                         +-------+
+```
 
 StrongSwan With Integrated VPP
 ==============================
 
 A second set of containers will run StrongSwan with integrated VPP charon
 drivers to allow VPP to drive the ipsec dataplane.
-```
