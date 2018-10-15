@@ -26,6 +26,7 @@ socket-vpp {
 }
 EOL
 
+mv /usr/local/etc/strongswan.d/charon-logging.conf /usr/local/etc/strongswan.d/charon-logging.conf.old
 cat > /usr/local/etc/strongswan.d/charon-logging.conf << EOL
 charon {
 
@@ -33,7 +34,7 @@ charon {
     # strongswan.conf(5).
     filelog {
 
-        /var/log/charon.log {
+        /var/log {
             default = 5
         }
     }
