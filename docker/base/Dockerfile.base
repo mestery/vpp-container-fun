@@ -2,5 +2,8 @@ FROM centos
 
 ARG REPO=release
 
-RUN curl -s https://packagecloud.io/install/repositories/fdio/${REPO}/script.rpm.sh |  bash
-RUN yum -y update; yum -y install sudo iproute vpp vpp-plugins vpp-api-python
+RUN curl -s https://packagecloud.io/install/repositories/fdio/${REPO}/script.rpm.sh |  bash && \
+    yum -y update && \
+    yum -y install sudo iproute vpp-18.07.1-release vpp-plugins-18.07.1-release vpp-api-python-18.07.1-release vpp-lib-18.07.1-release vpp-devel-18.07.1-release && \
+    yum clean all && \
+    rm -rf /var/cache/yum
