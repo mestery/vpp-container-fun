@@ -7,7 +7,7 @@ RUN yum -y install epel-release tcpdump gmp-devel gperftools-devel gperftools-li
     git clone https://github.com/mestery/strongswan.git && \
     cd strongswan && \
     git fetch && \
-    git checkout vpp-rebase && \
+    git checkout vpp && \
     ./autogen.sh && \
     ./configure --enable-libipsec --enable-socket-vpp --enable-kernel-vpp && \
     make && \
