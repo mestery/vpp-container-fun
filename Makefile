@@ -41,6 +41,10 @@ DOCKER_VPPVPNBASE=vpp-container-fun/vppvpnbase
 DOCKER_VPPVPNSERVER=vpp-container-fun/vppvpnserver
 DOCKER_VPPVPNCLIENT=vpp-container-fun/vppvpnclient
 
+# The StrongSwan repository and commit to use
+BA_STRONGSWAN_REPO_URL=https://github.com/mestery/strongswan.git
+BA_STRONGSWAN_COMMIT=vpp-1810
+
 .PHONY: all check docker-build
 #
 # The all target is what is used by the travis-ci system to build the Docker images
@@ -72,7 +76,7 @@ docker-build-strongswan: docker-build-base
 
 .PHONY: docker-build-vppvpnbase
 docker-build-vppvpnbase: docker-build-base
-	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNBASE} -f Dockerfile.strongswan .
+	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNBASE} -f Dockerfile.strongswan --build-arg STRONGSWAN_REPO_URL=${BA_STRONGSWAN_REPO_URL} --build-arg STRONGSWAN_COMMIT=${BA_STRONGSWAN_COMMIT} .
 
 .PHONY: docker-build-vppvpn
 docker-build-vppvpn: docker-build-base docker-build-vppvpnbase
