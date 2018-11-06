@@ -82,3 +82,11 @@ StrongSwan With Integrated VPP
 
 A second set of containers will run StrongSwan with integrated VPP charon
 drivers to allow VPP to drive the ipsec dataplane.
+
+To build, run, and test this, do the following:
+
+```
+make docker-build-vppvpn
+make run-vppvpn
+make test-vppvpn
+```
