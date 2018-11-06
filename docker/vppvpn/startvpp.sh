@@ -5,9 +5,11 @@ set -xe
 set -xe
 
 # Create tun interface
-mkdir /dev/net
-mknod /dev/net/tun c 10 200
-chmod 666 /dev/net/tun
+mkdir -p /dev/net
+if [ ! -e /dev/net/tun ] ; then
+  mknod /dev/net/tun c 10 200
+  chmod 666 /dev/net/tun
+fi
 
 # Run the VPP daemon
 /usr/bin/vpp -c /etc/vpp/startup.conf
