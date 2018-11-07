@@ -1,4 +1,5 @@
 FROM centos
+MAINTAINER mestery@mestery.com
 
 ARG REPO=release
 
