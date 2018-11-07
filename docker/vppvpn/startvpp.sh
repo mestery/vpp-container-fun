@@ -21,12 +21,12 @@ until ls -l /run/vpp/cli-vpp1.sock ; do
        sleep 1
 done
 
-sudo vppctl -s /run/vpp/cli-vpp1.sock tap connect gateway address "${SWANTUNNELIP}"/"${VPPSUBNETMASK}"
+sudo vppctl -s /run/vpp/cli-vpp1.sock tap connect gateway address "${SWANTUNNELIP}"/"${SWANSUBNETMASK}"
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface state tapcli-0 up
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address tapcli-0 "${VPPTUNNELIP}"/"${VPPSUBNETMASK}"
 sudo vppctl -s /run/vpp/cli-vpp1.sock tap connect gw-net
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface state tapcli-1 up
-sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address tapcli-1 "${VPPOUTERIP}"/"${VPPSUBNETMASK}"
+sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address tapcli-1 "${VPPOUTERIP}"/"${OUTERMASK}"
 
 # Move gw-net interface to it's own namespace
 ip netns add "${OUTERNAMESPACE}"
