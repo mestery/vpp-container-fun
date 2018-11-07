@@ -28,6 +28,14 @@ sudo vppctl -s /run/vpp/cli-vpp1.sock tap connect gw-net
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface state tapcli-1 up
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ip address tapcli-1 "${VPPOUTERIP}"/"${VPPSUBNETMASK}"
 
+# Move gw-net interface to it's own namespace
+ip netns add ${OUTERNAMESPACE}
+ip link set gw-net netns ${OUTERNAMESPACE}
+ip netns exec ${OUTERNAMESPACE} ip link set lo up
+ip netns exec ${OUTERNAMESPACE} ip link set gw-net up
+ip netns exec ${OUTERNAMESPACE} ip addr add ${HOSTOUTERIP}/${OUTERMASK} dev gw-net
+ip netns exec ${OUTERNAMESPACE} ip route add default via ${VPPOUTERIP}
+
 sudo vppctl -s /run/vpp/cli-vpp1.sock ip route add "${VPP_DOCKER_SUBNET}"/"${VPP_DOCKER_SUBNET_MASK}" via "${SWANTUNNELIP}" tapcli-0
 sudo vppctl -s /run/vpp/cli-vpp1.sock set interface ipsec spd tapcli-0 1
 SILLYMAC=$(ip link| grep -A 1 gateway|grep ether | cut -d " " -f 6)
