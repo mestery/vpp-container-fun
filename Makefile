@@ -58,7 +58,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn
 
 .PHONY: docker-build-base
 docker-build-base:
@@ -102,7 +102,7 @@ travis:
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
 .PHONY: run
-run: run-allinone run-multiple run-strongswan run-vppvpn
+run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
 
 .PHONY: run-allinone
 run-allinone:
@@ -124,7 +124,7 @@ run-vppvpn:
 	@cd ./docker/vppvpn && ./runme.sh ${DOCKER_VPPVPNSERVER} ${DOCKER_VPPVPNCLIENT}
 
 .PHONY: test
-test: test-allinone test-multiple test-strongswan test-vppvpn
+test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
 
 .PHONY: test-allinone
 test-allinone:
