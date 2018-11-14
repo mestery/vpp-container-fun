@@ -19,6 +19,9 @@ SHELL:=/bin/bash
 .PHONY: default
 default: all
 
+# Include Makefiles
+include docker/cups-vppvpn/Makefile.cups-vppvpn
+
 # Setup proxies for docker build
 ifeq ($(HTTP_PROXY),)
 HTTPBUILD=
