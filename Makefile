@@ -19,6 +19,9 @@ SHELL:=/bin/bash
 .PHONY: default
 default: all
 
+# Include Makefiles
+include docker/cups-vppvpn/Makefile.cups-vppvpn
+
 # Setup proxies for docker build
 ifeq ($(HTTP_PROXY),)
 HTTPBUILD=
@@ -55,7 +58,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn
 
 .PHONY: docker-build-base
 docker-build-base:
@@ -99,7 +102,7 @@ travis:
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
 .PHONY: run
-run: run-allinone run-multiple run-strongswan run-vppvpn
+run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
 
 .PHONY: run-allinone
 run-allinone:
@@ -121,7 +124,7 @@ run-vppvpn:
 	@cd ./docker/vppvpn && ./runme.sh ${DOCKER_VPPVPNSERVER} ${DOCKER_VPPVPNCLIENT}
 
 .PHONY: test
-test: test-allinone test-multiple test-strongswan test-vppvpn
+test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
 
 .PHONY: test-allinone
 test-allinone:
@@ -135,6 +138,6 @@ test-multiple:
 test-strongswan:
 	@docker exec -it strongswanvpp ping 192.168.124.100 -c 5
 
-.PHONT: test-vppvpn
+.PHONY: test-vppvpn
 test-vppvpn:
 	@docker exec -it vppvpnclient ping 192.168.124.100 -c 5
