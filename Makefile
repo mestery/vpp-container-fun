@@ -138,6 +138,6 @@ test-multiple:
 test-strongswan:
 	@docker exec -it strongswanvpp ping 192.168.124.100 -c 5
 
-.PHONT: test-vppvpn
+.PHONY: test-vppvpn
 test-vppvpn:
 	@docker exec -it vppvpnclient ping 192.168.124.100 -c 5

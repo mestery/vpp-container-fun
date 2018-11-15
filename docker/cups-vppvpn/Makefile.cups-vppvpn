@@ -28,5 +28,5 @@ run-cups-vppvpn:
 
 .PHONT: test-cups-vppvpn
 test-cups-vppvpn:
-	@sleep 5
+	@docker exec -it ipsecclient ipsec statusall
 	@docker exec -it ipsecclient ping 192.168.124.100 -c 5
