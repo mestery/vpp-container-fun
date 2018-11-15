@@ -31,7 +31,6 @@ EOL
 sudo mv /tmp/ipsec.secrets /usr/local/etc/ipsec.secrets
 
 ip route add "${SWANSUBNET}"/"${SWANSUBNETMASK}" via "${VPP_SERVER_IP}"
-ip route add "${VPP_GATEWAY_SUBNET}"/"${VPP_GATEWAY_SUBNET_MASK}" via "${VPP_SERVER_IP}"
 
 ipsec start && sleep 5
 ipsec up net-net
