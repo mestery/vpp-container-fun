@@ -20,6 +20,11 @@ SHELL:=/bin/bash
 default: all
 
 # Include Makefiles
+include docker/base/Makefile.base
+include docker/allinone/Makefile.allinone
+include docker/multiple/Makefile.multiple
+include docker/strongswan/Makefile.strongswan
+include docker/vppvpn/Makefile.vppvpn
 include docker/cups-vppvpn/Makefile.cups-vppvpn
 
 # Setup proxies for docker build
@@ -35,14 +40,6 @@ HTTPSBUILD=--build-arg HTTPS_PROXY=$(HTTPS_PROXY)
 endif
 
 DOCKERBUILD=docker build ${HTTPBUILD} ${HTTPSBUILD}
-DOCKER_VPP_ALLINONE=vpp-container-fun/vpp-allinone
-DOCKER_VPP_BASE=vpp-container-fun/base
-DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
-DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
-DOCKER_STRONGSWAN_VPP=vpp-container-fun/strongswan-vpp
-DOCKER_VPPVPNBASE=vpp-container-fun/vppvpnbase
-DOCKER_VPPVPNSERVER=vpp-container-fun/vppvpnserver
-DOCKER_VPPVPNCLIENT=vpp-container-fun/vppvpnclient
 
 # The StrongSwan repository and commit to use
 BA_STRONGSWAN_REPO_URL=https://github.com/mestery/strongswan.git
@@ -59,32 +56,6 @@ check:
 	@shellcheck `find . -name "*.sh"`
 
 docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn
-
-.PHONY: docker-build-base
-docker-build-base:
-	@cd docker/base && ${DOCKERBUILD} -t ${DOCKER_VPP_BASE} -f Dockerfile.base .
-
-.PHONY: docker-build-allinone
-docker-build-allinone: docker-build-base
-	@cd docker/allinone && ${DOCKERBUILD} -t ${DOCKER_VPP_ALLINONE} -f Dockerfile .
-
-.PHONY: docker-build-multiple
-docker-build-multiple: docker-build-base
-	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE1} -f Dockerfile.vpp1 .
-	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE2} -f Dockerfile.vpp2 .
-
-.PHONY: docker-build-strongswan
-docker-build-strongswan: docker-build-base
-	@cd docker/strongswan && ${DOCKERBUILD} -t ${DOCKER_STRONGSWAN_VPP} -f Dockerfile.vpp .
-
-.PHONY: docker-build-vppvpnbase
-docker-build-vppvpnbase: docker-build-base
-	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNBASE} -f Dockerfile.strongswan --build-arg STRONGSWAN_REPO_URL=${BA_STRONGSWAN_REPO_URL} --build-arg STRONGSWAN_COMMIT=${BA_STRONGSWAN_COMMIT} .
-
-.PHONY: docker-build-vppvpn
-docker-build-vppvpn: docker-build-base docker-build-vppvpnbase
-	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNSERVER} -f Dockerfile.vpnserver .
-	@cd docker/vppvpn && ${DOCKERBUILD} -t ${DOCKER_VPPVPNCLIENT} -f Dockerfile.vpnclient .
 
 # Travis
 .PHONY: travis
@@ -104,40 +75,5 @@ travis:
 .PHONY: run
 run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
 
-.PHONY: run-allinone
-run-allinone:
-	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/allinone/env.list -id --name vppallinone ${DOCKER_VPP_ALLINONE} && sleep 15
-
-.PHONY: run-multiple
-run-multiple:
-	@mkdir -p run
-	@rm -rf run/vpp*
-	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
-	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
-
-.PHONY: run-strongswan
-run-strongswan:
-	@docker run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/strongswan/env.list -id --name strongswanvpp ${DOCKER_STRONGSWAN_VPP}
-
-.PHONY: run-vppvpn
-run-vppvpn:
-	@cd ./docker/vppvpn && ./runme.sh ${DOCKER_VPPVPNSERVER} ${DOCKER_VPPVPNCLIENT}
-
 .PHONY: test
 test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
-
-.PHONY: test-allinone
-test-allinone:
-	@docker exec -it vppallinone ping -c 5 10.10.2.2
-
-.PHONY: test-multiple
-test-multiple:
-	@docker exec -it vpp1 ping -c 5 10.10.2.2
-
-.PHONY: test-strongswan
-test-strongswan:
-	@docker exec -it strongswanvpp ping 192.168.124.100 -c 5
-
-.PHONY: test-vppvpn
-test-vppvpn:
-	@docker exec -it vppvpnclient ping 192.168.124.100 -c 5
