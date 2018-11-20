@@ -1,0 +1,33 @@
+# Copyright (c) 2018 Cisco and/or its affiliates.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DOCKER_VPP_MULTIPLE1=vpp-container-fun/multiple-vpp1
+DOCKER_VPP_MULTIPLE2=vpp-container-fun/multiple-vpp2
+
+
+.PHONY: docker-build-multiple
+docker-build-multiple: docker-build-base
+	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE1} -f Dockerfile.vpp1 .
+	@cd docker/multiple && ${DOCKERBUILD} -t ${DOCKER_VPP_MULTIPLE2} -f Dockerfile.vpp2 .
+
+.PHONY: run-multiple
+run-multiple:
+	@mkdir -p run
+	@rm -rf run/vpp*
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp1 ${DOCKER_VPP_MULTIPLE1} && sleep 15
+	@docker run -v `pwd`/run:/run --cap-add IPC_LOCK --cap-add NET_ADMIN --env-file ./docker/multiple/env.list -id --name vpp2 ${DOCKER_VPP_MULTIPLE2} && sleep 15
+
+.PHONY: test-multiple
+test-multiple:
+	@docker exec -it vpp1 ping -c 5 10.10.2.2
