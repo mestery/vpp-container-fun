@@ -35,7 +35,7 @@ run-ha-scale-vpn:
 
 .PHONY: test-ha-scale-vpn
 test-ha-scale-vpn:
-	@docker exec -it ha-vpnclient ping 10.223.223.51 -c 5
+	@docker exec -it ha-vpnclient ping 10.223.226.51 -c 5
 
 .PHONY: remove-ha-scale-vpn
 remove-ha-scale-vpn:

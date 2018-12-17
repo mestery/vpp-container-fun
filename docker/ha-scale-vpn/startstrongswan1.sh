@@ -85,7 +85,7 @@ vrrp_instance VI_1 {
     auth_pass Vpp123
   }
   virtual_ipaddress {
-    ${CLUSTERIP}/24 brd 10.222.222.255 dev eth0
+    ${CLUSTERIP}/22 brd 10.122.223.255 dev eth0
   }
   notify /etc/keepalived/notifyipsec.sh
 
@@ -100,7 +100,7 @@ vrrp_instance VI_2 {
     auth_pass Vpp123
   }
   virtual_ipaddress {
-    ${VPNCLUSTERIP}/24 brd 10.223.223.255 dev eth1
+    ${VPNCLUSTERIP}/22 brd 10.223.223.255 dev eth1
   }
 }
 }
