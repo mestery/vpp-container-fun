@@ -130,8 +130,8 @@ esac
 EOL
 
 # Setup the cluster IP
-iptables -A INPUT -d ${CLUSTERIP} -i eth0 -j CLUSTERIP --new --hashmode sourceip --clustermac ${CLUSTERMAC} --total-nodes 2 --local-node 1 --hash-init 0
-iptables -A INPUT -d ${VPNCLUSTERIP} -i eth1 -j CLUSTERIP --new --hashmode sourceip --clustermac ${VPNCLUSTERMAC} --total-nodes 2 --local-node 1 --hash-init 0
+iptables -A INPUT -d "${CLUSTERIP}" -i eth0 -j CLUSTERIP --new --hashmode sourceip --clustermac "${CLUSTERMAC}" --total-nodes 2 --local-node 1 --hash-init 0
+iptables -A INPUT -d "${VPNCLUSTERIP}" -i eth1 -j CLUSTERIP --new --hashmode sourceip --clustermac "${VPNCLUSTERMAC}" --total-nodes 2 --local-node 1 --hash-init 0
 
 # Start keepalived
 keepalived
