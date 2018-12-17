@@ -1,0 +1,6 @@
+FROM vpp-container-fun/ha-scale-strongswan
+MAINTAINER mestery@mestery.com
+
+COPY startfarend.sh /
+
+ENTRYPOINT /startfarend.sh
