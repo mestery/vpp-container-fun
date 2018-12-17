@@ -132,3 +132,8 @@ This builds the following configuration:
 |                                                                                                |
 +------------------------------------------------------------------------------------------------+
 ```
+
+StrongSwan HA Scale VPN
+=======================
+
+See the [README.md](docker/ha-scale-vpn/README.md) for more information.

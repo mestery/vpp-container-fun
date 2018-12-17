@@ -26,6 +26,7 @@ include docker/multiple/Makefile.multiple
 include docker/strongswan/Makefile.strongswan
 include docker/vppvpn/Makefile.vppvpn
 include docker/cups-vppvpn/Makefile.cups-vppvpn
+include docker/ha-scale-vpn/Makefile.ha-scale-vpn
 
 # Setup proxies for docker build
 ifeq ($(HTTP_PROXY),)
@@ -55,7 +56,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn docker-build-ha-scale-vpn
 
 # Travis
 .PHONY: travis
@@ -73,7 +74,7 @@ travis:
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
 .PHONY: run
-run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
+run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn run-ha-scale-vpn
 
 .PHONY: test
-test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
+test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn test-ha-scale-vpn

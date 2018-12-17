@@ -1,0 +1,46 @@
+# Copyright (c) 2018 Cisco and/or its affiliates.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DOCKER_HA_STRONGSWAN=vpp-container-fun/ha-scale-strongswan
+DOCKER_HA_VPNSERVER_1=vpp-container-fun/ha-scale-vpnserver-1
+DOCKER_HA_VPNSERVER_2=vpp-container-fun/ha-scale-vpnserver-2
+DOCKER_HA_VPNCLIENT=vpp-container-fun/ha-scale-vpnclient
+DOCKER_HA_FAREND=vpp-container-fun/ha-farend
+
+.PHONY: docker-build-ha-scale-strongswan
+docker-build-ha-scale-strongswan: docker-build-base
+	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_STRONGSWAN} -f Dockerfile.strongswan --build-arg STRONGSWAN_REPO_URL=${BA_STRONGSWAN_REPO_URL} --build-arg STRONGSWAN_COMMIT=${BA_STRONGSWAN_COMMIT} .
+
+.PHONY: docker-build-ha-scale-vpn
+docker-build-ha-scale-vpn: docker-build-ha-scale-strongswan
+	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_VPNSERVER_1} -f Dockerfile.ha-vpnserver-1 .
+	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_VPNSERVER_2} -f Dockerfile.ha-vpnserver-2 .
+	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_VPNCLIENT} -f Dockerfile.ha-vpnclient .
+	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_FAREND} -f Dockerfile.ha-farend .
+
+.PHONY: run-ha-scale-vpn
+run-ha-scale-vpn:
+	@cd ./docker/ha-scale-vpn && ./runme.sh ${DOCKER_HA_VPNSERVER_1} ${DOCKER_HA_VPNSERVER_2} ${DOCKER_HA_VPNCLIENT} ${DOCKER_HA_FAREND}
+
+.PHONY: test-ha-scale-vpn
+test-ha-scale-vpn:
+	@docker exec -it ha-vpnclient ping 10.223.223.51 -c 5
+
+.PHONY: remove-ha-scale-vpn
+remove-ha-scale-vpn:
+	@docker exec -it ha-vpnserver1 iptables -D INPUT 2
+	@docker exec -it ha-vpnserver1 iptables -D INPUT 1
+	@docker exec -it ha-vpnserver2 iptables -D INPUT 2
+	@docker exec -it ha-vpnserver2 iptables -D INPUT 1
+	@docker rm -f ha-farend ha-vpnclient ha-vpnserver1 ha-vpnserver2
