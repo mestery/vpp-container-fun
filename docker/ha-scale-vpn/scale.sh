@@ -18,10 +18,10 @@ start() {
     ip link add link eth0 name "${NDEV}" type macvtap mode bridge
     ip link set dev "${NDEV}" netns "${NSPACE}" up
     ip netns exec "${NSPACE}" ip link set dev lo up
-    ip netns exec "${NSPACE}" ip address add 10.222.222."${COUNT}"/24 dev "${NDEV}"
+    ip netns exec "${NSPACE}" ip address add 10.122.220."${COUNT}"/22 dev "${NDEV}"
 
     < /etc/ipsec.conf sed '/left\=/d' > /etc/netns/"${NSPACE}"/ipsec.conf
-    echo "        left=10.222.222.${COUNT}" >> /etc/netns/"${NSPACE}"/ipsec.conf
+    echo "        left=10.122.220.${COUNT}" >> /etc/netns/"${NSPACE}"/ipsec.conf
     cp /etc/ipsec.secrets /etc/netns/"${NSPACE}"/ipsec.secrets
 
     ip netns exec "${NSPACE}" ipsec start --conf /etc/netns/"${NSPACE}"/ipsec.conf
