@@ -74,12 +74,20 @@ sudo mv /tmp/ipsec.secrets /etc/ipsec.secrets
 cat > /etc/keepalived/keepalived.conf << EOL
 ! Configuration File for keepalived
 
+vrrp_sync_group VG1 {
+  group {
+    VI_1
+    VI_2
+  }
+}
+
 vrrp_instance VI_1 {
   state BACKUP
   interface eth0
-  virtual_router_id 51
+  virtual_router_id 52
   priority 100
   advert_int 1
+  nopreempt
   authentication {
     auth_type PASS
     auth_pass Vpp123
@@ -93,9 +101,10 @@ vrrp_instance VI_1 {
 vrrp_instance VI_2 {
   state BACKUP
   interface eth1
-  virtual_router_id 61
+  virtual_router_id 62
   priority 100
   advert_int 1
+  nopreempt
   authentication {
     auth_type PASS
     auth_pass Vpp123

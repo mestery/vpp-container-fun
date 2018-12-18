@@ -73,6 +73,13 @@ sudo mv /tmp/ipsec.secrets /etc/ipsec.secrets
 # Setup keepalived
 cat > /etc/keepalived/keepalived.conf << EOL
 ! Configuration File for keepalived
+
+vrrp_sync_group VG1 {
+  group {
+    VI_1
+    VI_2
+  }
+}
  
 vrrp_instance VI_1 {
   state MASTER
@@ -80,6 +87,7 @@ vrrp_instance VI_1 {
   virtual_router_id 51
   priority 150
   advert_int 1
+  nopreempt
   authentication {
     auth_type PASS
     auth_pass Vpp123
@@ -88,6 +96,7 @@ vrrp_instance VI_1 {
     ${CLUSTERIP}/22 brd 10.122.223.255 dev eth0
   }
   notify /etc/keepalived/notifyipsec.sh
+}
 
 vrrp_instance VI_2 {
   state MASTER
@@ -95,6 +104,7 @@ vrrp_instance VI_2 {
   virtual_router_id 61
   priority 150
   advert_int 1
+  nopreempt
   authentication {
     auth_type PASS
     auth_pass Vpp123
@@ -102,7 +112,6 @@ vrrp_instance VI_2 {
   virtual_ipaddress {
     ${VPNCLUSTERIP}/22 brd 10.223.223.255 dev eth1
   }
-}
 }
 EOL
 
