@@ -73,12 +73,8 @@ travis:
 	@echo "Files:"
 	@echo "$$(git diff --name-only $$TRAVIS_COMMIT_RANGE)"
 
-# NOTE: We do not run ha-scale-vpn by default here because it has issues in travis-ci.
-#       See #31 for more details.
 .PHONY: run
-run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
+run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn run-ha-scale-vpn
 
-# NOTE: We do not test ha-scale-vpn by default here because it has issues in travis-ci.
-#       See #31 for more details.
 .PHONY: test
-test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
+test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn test-ha-scale-vpn
