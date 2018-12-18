@@ -5,13 +5,27 @@ set -xe
 mv /etc/strongswan.d/charon-logging.conf /etc/strongswan.d/charon-logging.conf.old
 cat > /etc/strongswan.d/charon-logging.conf << EOL
 charon {
-
-    # Section to define file loggers, see LOGGER CONFIGURATION in
-    # strongswan.conf(5).
+    # two defined file loggers
     filelog {
-
-        /var/log {
-            default = 5
+        charon {
+            # path to the log file, specify this as section name in versions prior to 5.7.0
+            path = /var/log/charon.log
+            # add a timestamp prefix
+            time_format = %b %e %T
+            # prepend connection name, simplifies grepping
+            ike_name = yes
+            # overwrite existing files
+            append = no
+            # increase default loglevel for all daemon subsystems
+            default = 2
+            # flush each line to disk
+            flush_line = yes
+        }
+        stderr {
+            # more detailed loglevel for a specific subsystem, overriding the
+            # default loglevel.
+            ike = 2
+            knl = 3
         }
     }
 }
@@ -41,6 +55,9 @@ ha {
     # secret =
     segment_count = 1
 
+    pools {
+      testpool = 10.223.220.0/22
+    }
 }
 EOL
 
@@ -56,11 +73,12 @@ conn %default
 
 conn net-net
         type=tunnel
-        left=${CLUSTERIP}
-        leftsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
-        leftauth=psk
-        right=%any
+        right=${CLUSTERIP}
+        rightsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
+        rightsourceip=%testpool
         rightauth=psk
+        left=%any
+        leftauth=psk
         auto=add
 EOL
 sudo mv /tmp/ipsec.conf /etc/ipsec.conf
