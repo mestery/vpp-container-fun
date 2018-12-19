@@ -73,12 +73,12 @@ conn %default
 
 conn net-net
         type=tunnel
-        right=${CLUSTERIP}
-        rightsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
-        rightsourceip=%testpool
-        rightauth=psk
-        left=%any
+        left=${CLUSTERIP}
+        leftsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
+        leftsourceip=%testpool
         leftauth=psk
+        right=%any
+        rightauth=psk
         auto=add
 EOL
 sudo mv /tmp/ipsec.conf /etc/ipsec.conf
