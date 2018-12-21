@@ -17,7 +17,7 @@ charon {
             # overwrite existing files
             append = no
             # increase default loglevel for all daemon subsystems
-            default = 2
+            default = 1
             # flush each line to disk
             flush_line = yes
         }
@@ -66,6 +66,7 @@ config setup
         strictcrlpolicy=no
 
 conn %default
+        esp=aes128gcm8
         mobike=no
         keyexchange=ikev2
         ikelifetime=24h
@@ -113,7 +114,6 @@ vrrp_instance VI_1 {
   virtual_ipaddress {
     ${CLUSTERIP}/22 brd 10.122.223.255 dev eth0
   }
-  notify /etc/keepalived/notifyipsec.sh
 }
 
 vrrp_instance VI_2 {
@@ -133,29 +133,6 @@ vrrp_instance VI_2 {
 }
 EOL
 
-cat > /etc/keepalived/notifyipsec.sh << EOL
-#!/bin/bash
- 
-TYPE=$1
-NAME=$2
-STATE=$3
- 
-case $STATE in
-    "MASTER") ipsec restart
-              exit 0
-              ;;
-    "BACKUP") ipsec stop
-              exit 0
-              ;;
-    "FAULT")  ipsec stop
-              exit 0
-              ;;
-    *)        echo "unknown state"
-              exit 1
-              ;;
-esac
-EOL
-
 # Setup the cluster IP
 iptables -A INPUT -d "${CLUSTERIP}" -i eth0 -j CLUSTERIP --new --hashmode sourceip --clustermac "${CLUSTERMAC}" --total-nodes 2 --local-node 1 --hash-init 0
 iptables -A INPUT -d "${VPNCLUSTERIP}" -i eth1 -j CLUSTERIP --new --hashmode sourceip --clustermac "${VPNCLUSTERMAC}" --total-nodes 2 --local-node 1 --hash-init 0
@@ -164,7 +141,7 @@ iptables -A INPUT -d "${VPNCLUSTERIP}" -i eth1 -j CLUSTERIP --new --hashmode sou
 keepalived
 
 mkdir -p /etc/ipsec.d/run
-ipsec start --debug-all
+ipsec start
 
 # If this script is run via the Dockerfile, we'd want the below at the end. But
 # in the case of the ha-scale-vpn containers, we run this script via a "docker

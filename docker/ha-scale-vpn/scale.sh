@@ -99,6 +99,8 @@ elif [ "$1" == "status" ] ; then
   status
 elif [ "$1" == "statusall" ] ; then
   statusall
+elif [ "$1" == "pingall" ] ; then
+  pingall
 else
   echo "Usage: [start | stop | status | statusall | pingall]"
 fi

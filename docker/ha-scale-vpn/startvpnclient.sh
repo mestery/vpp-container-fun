@@ -8,7 +8,7 @@ config setup
 
 conn %default
         #ike=aes256-sha1-modp2048!
-        #esp=aes192-sha1-esn!
+        esp=aes128gcm8
         mobike=no
         keyexchange=ikev2
         ikelifetime=24h
