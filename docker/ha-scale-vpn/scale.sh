@@ -20,12 +20,32 @@ start() {
     ip netns exec "${NSPACE}" ip link set dev lo up
     ip netns exec "${NSPACE}" ip address add 10.122.220."${COUNT}"/22 dev "${NDEV}"
 
-    < /etc/ipsec.conf sed '/left\=/d' > /etc/netns/"${NSPACE}"/ipsec.conf
-    echo "        left=10.122.220.${COUNT}" >> /etc/netns/"${NSPACE}"/ipsec.conf
+    cat >/etc/netns/"${NSPACE}"/ipsec.conf << EOL
+config setup
+        strictcrlpolicy=no
+
+conn %default
+        #ike=aes256-sha1-modp2048!
+        esp=aes128gcm8
+        mobike=no
+        keyexchange=ikev2
+        ikelifetime=24h
+        lifetime=24h
+
+conn vpn-${NSPACE}
+        type=tunnel
+        right=${CLUSTERIP}
+        rightsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
+        rightauth=psk
+        left=10.122.220.${COUNT}
+        leftauth=psk
+        auto=add
+EOL
+
     cp /etc/ipsec.secrets /etc/netns/"${NSPACE}"/ipsec.secrets
 
     ip netns exec "${NSPACE}" ipsec start --conf /etc/netns/"${NSPACE}"/ipsec.conf
-    ip netns exec "${NSPACE}" ipsec up net-net
+    ip netns exec "${NSPACE}" ipsec up vpn-${NSPACE}
     ip netns exec "${NSPACE}" ipsec statusall
 
     COUNT=$(( COUNT - 1 ))
@@ -47,10 +67,38 @@ stop() {
   done
 }
 
+status() {
+  local f
+
+  for f in $(seq 1 "${COUNT}") ; do
+    ip netns exec "vpn-${f}" ipsec status
+  done
+}
+
+statusall() {
+  local f
+
+  for f in $(seq 1 "${COUNT}") ; do
+    ip netns exec "vpn-${f}" ipsec statusall
+  done
+}
+
+pingall() {
+  local f
+
+  for f in $(seq 1 "${COUNT}") ; do
+    ip netns exec "vpn-${f}" ping -c 5 "${VPNCLUSTERIP}"
+  done
+}
+
 if [ "$1" == "start" ] ; then
   start
 elif [ "$1" == "stop" ] ; then
   stop
+elif [ "$1" == "status" ] ; then
+  status
+elif [ "$1" == "statusall" ] ; then
+  statusall
 else
-  echo "Usage: [start | stop]"
+  echo "Usage: [start | stop | status | statusall | pingall]"
 fi
