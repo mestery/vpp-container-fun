@@ -3,22 +3,59 @@
 # This script is used to scale test the StrongSwan IKE/ESP HA nodes. It will
 # create a network namespace, copy over some ipsec configuration files, and
 # setup some IP addresses in the network namespace before starting an ipsec
-# client. You can change how many of these are created by setting COUNT.
+# client. You can change how many of these are created by setting MAXCOUNT.
 
-COUNT=5
+# The maximum number of iterations to make in this script
+MAXCOUNT=5
+COUNT=1
 NSPREFIX=vpn
 
+# Converst a decimal into an IP address
+dec2ip () {
+    local ip dec=( "$@" )
+    for e in {3..0}
+    do
+        ((octet = dec / (256 ** e) ))
+        ((dec -= octet * 256 ** e))
+        ip+=$delim$octet
+        delim=.
+    done
+    printf '%s\n' "$ip"
+}
+
+# Converts an IP address into a decimal
+ip2dec () {
+    local a b c d ip=( "$@" )
+    IFS=. read -r a b c d <<< "${ip[@]}"
+    printf '%d\n' "$((a * 256 ** 3 + b * 256 ** 2 + c * 256 + d))"
+}
+
+# The start IP address.
+# .FIXME: Should probably source env.sh from the same directory and get it
+#         from there rather than hard coding here.
+STARTIP=10.122.220.1
+# The decimal version of the above
+ADDRESS=$(ip2dec ${STARTIP})
+
 start() {
-  until [ "${COUNT}" -eq "0" ] ; do
+  while [ "${COUNT}" -le "${MAXCOUNT}" ]; do
+    VPNCADDR=$(dec2ip "$ADDRESS")
     NSPACE="${NSPREFIX}-${COUNT}"
     NDEV="${NSPACE}"-dev
+
+    OCTET=$(echo "${VPNCADDR}" | cut -d . -f 4)
+    if [ "$OCTET" == "0" ] || [ "${OCTET}" == "255" ] ; then
+      ADDRESS=$(( ADDRESS + 1 ))
+      COUNT=$(( COUNT + 1 ))
+      continue
+    fi
 
     ip netns add "${NSPACE}"
     mkdir -p /etc/netns/"${NSPACE}"/ipsec.d/run
     ip link add link eth0 name "${NDEV}" type macvtap mode bridge
     ip link set dev "${NDEV}" netns "${NSPACE}" up
     ip netns exec "${NSPACE}" ip link set dev lo up
-    ip netns exec "${NSPACE}" ip address add 10.122.220."${COUNT}"/22 dev "${NDEV}"
+    ip netns exec "${NSPACE}" ip address add "${VPNCADDR}"/22 dev "${NDEV}"
 
     cat >/etc/netns/"${NSPACE}"/ipsec.conf << EOL
 config setup
@@ -37,7 +74,7 @@ conn vpn-${NSPACE}
         right=${CLUSTERIP}
         rightsubnet=${VPN_SUBNET}/${VPN_SUBNET_MASK}
         rightauth=psk
-        left=10.122.220.${COUNT}
+        left=${VPNCADDR}
         leftauth=psk
         auto=add
 EOL
@@ -48,14 +85,23 @@ EOL
     ip netns exec "${NSPACE}" ipsec up vpn-${NSPACE}
     ip netns exec "${NSPACE}" ipsec statusall
 
-    COUNT=$(( COUNT - 1 ))
+    ADDRESS=$(( ADDRESS + 1 ))
+    COUNT=$(( COUNT + 1 ))
   done
 }
 
 stop() {
-  until [ "${COUNT}" -eq "0" ] ; do
+  while [ "${COUNT}" -le "${MAXCOUNT}" ]; do
+    VPNCADDR=$(dec2ip $ADDRESS)
     NSPACE="${NSPREFIX}-${COUNT}"
     NDEV="${NSPACE}"-dev
+
+    OCTET=$(echo "${VPNCADDR}" | cut -d . -f 4)
+    if [ "$OCTET" == "0" ] || [ "${OCTET}" == "255" ] ; then
+      ADDRESS=$(( ADDRESS + 1 ))
+      COUNT=$(( COUNT + 1 ))
+      continue
+    fi
 
     ip netns exec "${NSPACE}" ipsec stop
     ip netns exec "${NSPACE}" ip link delete dev "${NDEV}" type mcvtap
@@ -63,31 +109,57 @@ stop() {
 
     rm -f /etc/netns/"${NSPACE}"/ipsec.d/run/*
 
-    COUNT=$(( COUNT - 1 ))
+    ADDRESS=$(( ADDRESS + 1 ))
+    COUNT=$(( COUNT + 1 ))
   done
 }
 
 status() {
-  local f
+  while [ "${COUNT}" -le "${MAXCOUNT}" ]; do
+    VPNCADDR=$(dec2ip $ADDRESS)
+    OCTET=$(echo "${VPNCADDR}" | cut -d . -f 4)
+    if [ "$OCTET" == "0" ] || [ "${OCTET}" == "255" ] ; then
+      ADDRESS=$(( ADDRESS + 1 ))
+      COUNT=$(( COUNT + 1 ))
+      continue
+    fi
 
-  for f in $(seq 1 "${COUNT}") ; do
-    ip netns exec "vpn-${f}" ipsec status
+    ip netns exec "vpn-${COUNT}" ipsec status
+
+    ADDRESS=$(( ADDRESS + 1 ))
+    COUNT=$(( COUNT + 1 ))
   done
 }
 
 statusall() {
-  local f
+  while [ "${COUNT}" -le "${MAXCOUNT}" ]; do
+    VPNCADDR=$(dec2ip $ADDRESS)
+    OCTET=$(echo "${VPNCADDR}" | cut -d . -f 4)
+    if [ "$OCTET" == "0" ] || [ "${OCTET}" == "255" ] ; then
+      ADDRESS=$(( ADDRESS + 1 ))
+      COUNT=$(( COUNT + 1 ))
+      continue
+    fi
+    ip netns exec "vpn-${COUNT}" ipsec statusall
 
-  for f in $(seq 1 "${COUNT}") ; do
-    ip netns exec "vpn-${f}" ipsec statusall
+    ADDRESS=$(( ADDRESS + 1 ))
+    COUNT=$(( COUNT + 1 ))
   done
 }
 
 pingall() {
-  local f
+  while [ "${COUNT}" -le "${MAXCOUNT}" ]; do
+    VPNCADDR=$(dec2ip $ADDRESS)
+    OCTET=$(echo "${VPNCADDR}" | cut -d . -f 4)
+    if [ "$OCTET" == "0" ] || [ "${OCTET}" == "255" ] ; then
+      ADDRESS=$(( ADDRESS + 1 ))
+      COUNT=$(( COUNT + 1 ))
+      continue
+    fi
+    ip netns exec "vpn-${COUNT}" ping -c 5 "${VPNCLUSTERIP}"
 
-  for f in $(seq 1 "${COUNT}") ; do
-    ip netns exec "vpn-${f}" ping -c 5 "${VPNCLUSTERIP}"
+    ADDRESS=$(( ADDRESS + 1 ))
+    COUNT=$(( COUNT + 1 ))
   done
 }
 
