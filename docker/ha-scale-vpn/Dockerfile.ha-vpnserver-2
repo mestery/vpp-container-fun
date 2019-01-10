@@ -1,7 +1,0 @@
-FROM vpp-container-fun/ha-scale-strongswan
-MAINTAINER mestery@mestery.com
-
-COPY startstrongswan2.sh /
-COPY dummystart.sh /
-
-ENTRYPOINT /dummystart.sh
