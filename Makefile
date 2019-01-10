@@ -53,7 +53,7 @@ all: check docker-build
 check:
 	@shellcheck `find . -name "*.sh"`
 
-docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn docker-build-ha-scale-vpn
+docker-build: docker-build-allinone docker-build-multiple docker-build-strongswan docker-build-vppvpn docker-build-cups-vppvpn docker-build-ha-scale-vpn docker-build-redis-ha
 
 # Travis
 .PHONY: travis
@@ -73,9 +73,9 @@ travis:
 # NOTE: We do not run ha-scale-vpn by default here because it has issues in travis-ci.
 #       See #31 for more details.
 .PHONY: run
-run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn
+run: run-allinone run-multiple run-strongswan run-vppvpn run-cups-vppvpn run-redis-ha
 
 # NOTE: We do not test ha-scale-vpn by default here because it has issues in travis-ci.
 #       See #31 for more details.
 .PHONY: test
-test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn
+test: test-allinone test-multiple test-strongswan test-vppvpn test-cups-vppvpn test-redis-ha
