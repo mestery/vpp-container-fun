@@ -18,6 +18,10 @@ DOCKER_HA_VPNSERVER_2=vpp-container-fun/ha-scale-vpnserver-2
 DOCKER_HA_VPNCLIENT=vpp-container-fun/ha-scale-vpnclient
 DOCKER_HA_FAREND=vpp-container-fun/ha-farend
 
+# The StrongSwan repository and commit to use
+BA_STRONGSWAN_REPO_URL=https://github.com/mestery/strongswan.git
+BA_STRONGSWAN_COMMIT=vpp-1810
+
 .PHONY: docker-build-ha-scale-strongswan
 docker-build-ha-scale-strongswan: docker-build-base
 	@cd docker/ha-scale-vpn && ${DOCKERBUILD} -t ${DOCKER_HA_STRONGSWAN} -f Dockerfile.strongswan --build-arg STRONGSWAN_REPO_URL=${BA_STRONGSWAN_REPO_URL} --build-arg STRONGSWAN_COMMIT=${BA_STRONGSWAN_COMMIT} .

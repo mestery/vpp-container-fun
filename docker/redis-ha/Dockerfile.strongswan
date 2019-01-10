@@ -1,0 +1,20 @@
+FROM vpp-container-fun/base
+MAINTAINER mestery@mestery.com
+
+ARG STRONGSWAN_REPO_URL
+ARG STRONGSWAN_COMMIT
+
+RUN yum -y install epel-release socat iperf tcpdump gmp-devel gperftools-devel gperftools-libs gperftools gperf keepalived && \
+    yum -y install redis hiredis hiredis-devel && \
+    yum -y install jansson jansson-devel && \
+    yum -y group install "Development Tools" && \
+    yum clean all && \
+    rm -rf /var/cache/yum && \
+    git clone ${STRONGSWAN_REPO_URL} && \
+    cd strongswan && \
+    git fetch && \
+    git checkout ${STRONGSWAN_COMMIT} && \
+    ./autogen.sh && \
+    ./configure --sysconfdir=/etc --with-piddir=/etc/ipsec.d/run --enable-libipsec --enable-ha --enable-jitike && \
+    make && \
+    make install

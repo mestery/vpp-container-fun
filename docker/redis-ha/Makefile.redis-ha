@@ -1,0 +1,50 @@
+# Copyright (c) 2018 Cisco and/or its affiliates.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DOCKER_HA_STRONGSWAN=vpp-container-fun/redis-ha-strongswan
+DOCKER_HA_VPNSERVER_1=vpp-container-fun/redis-ha-vpnserver-1
+DOCKER_HA_VPNSERVER_2=vpp-container-fun/redis-ha-vpnserver-2
+DOCKER_HA_VPNCLIENT=vpp-container-fun/redis-ha-vpnclient
+DOCKER_HA_FAREND=vpp-container-fun/redis-ha-farend
+
+# The StrongSwan repository and commit to use
+BA_STRONGSWAN_REPO_URL=https://github.com/mestery/strongswan.git
+BA_STRONGSWAN_COMMIT=redis
+
+.PHONY: docker-build-redis-ha-strongswan
+docker-build-redis-ha-strongswan: docker-build-base
+	@cd docker/redis-ha && ${DOCKERBUILD} -t ${DOCKER_HA_STRONGSWAN} -f Dockerfile.strongswan --build-arg STRONGSWAN_REPO_URL=${BA_STRONGSWAN_REPO_URL} --build-arg STRONGSWAN_COMMIT=${BA_STRONGSWAN_COMMIT} .
+
+.PHONY: docker-build-redis-ha
+docker-build-redis-ha: docker-build-redis-ha-strongswan
+	@cd docker/redis-ha && ${DOCKERBUILD} -t ${DOCKER_HA_VPNSERVER_1} -f Dockerfile.ha-vpnserver-1 .
+	@cd docker/redis-ha && ${DOCKERBUILD} -t ${DOCKER_HA_VPNSERVER_2} -f Dockerfile.ha-vpnserver-2 .
+	@cd docker/redis-ha && ${DOCKERBUILD} -t ${DOCKER_HA_VPNCLIENT} -f Dockerfile.ha-vpnclient .
+	@cd docker/redis-ha && ${DOCKERBUILD} -t ${DOCKER_HA_FAREND} -f Dockerfile.ha-farend .
+
+.PHONY: run-redis-ha
+run-redis-ha:
+	@cd ./docker/redis-ha && ./runme.sh ${DOCKER_HA_VPNSERVER_1} ${DOCKER_HA_VPNSERVER_2} ${DOCKER_HA_VPNCLIENT} ${DOCKER_HA_FAREND}
+
+.PHONY: test-redis-ha
+test-redis-ha:
+	@docker exec -it haclient ping 10.224.226.51 -c 5
+
+.PHONY: remove-redis-ha
+remove-redis-ha:
+	@docker exec -it ha1 iptables -D INPUT 2
+	@docker exec -it ha1 iptables -D INPUT 1
+	@docker exec -it ha2 iptables -D INPUT 2
+	@docker exec -it ha2 iptables -D INPUT 1
+	@docker rm -f redis-farend redis haclient ha1 ha2

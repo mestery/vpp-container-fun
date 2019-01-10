@@ -1,0 +1,8 @@
+FROM vpp-container-fun/redis-ha-strongswan
+MAINTAINER mestery@mestery.com
+
+COPY startvpnclient.sh /
+COPY scale.sh /
+COPY dummystart.sh /
+
+ENTRYPOINT /dummystart.sh

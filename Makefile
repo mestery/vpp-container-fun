@@ -27,6 +27,7 @@ include docker/strongswan/Makefile.strongswan
 include docker/vppvpn/Makefile.vppvpn
 include docker/cups-vppvpn/Makefile.cups-vppvpn
 include docker/ha-scale-vpn/Makefile.ha-scale-vpn
+include docker/redis-ha/Makefile.redis-ha
 
 # Setup proxies for docker build
 ifeq ($(HTTP_PROXY),)
@@ -41,10 +42,6 @@ HTTPSBUILD=--build-arg HTTPS_PROXY=$(HTTPS_PROXY)
 endif
 
 DOCKERBUILD=docker build ${HTTPBUILD} ${HTTPSBUILD}
-
-# The StrongSwan repository and commit to use
-BA_STRONGSWAN_REPO_URL=https://github.com/mestery/strongswan.git
-BA_STRONGSWAN_COMMIT=vpp-1810
 
 .PHONY: all check docker-build
 #

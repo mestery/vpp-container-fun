@@ -1,0 +1,7 @@
+FROM vpp-container-fun/redis-ha-strongswan
+MAINTAINER mestery@mestery.com
+
+COPY startstrongswan1.sh /
+COPY dummystart.sh /
+
+ENTRYPOINT /dummystart.sh

@@ -137,3 +137,8 @@ StrongSwan HA Scale VPN
 =======================
 
 See the [README.md](docker/ha-scale-vpn/README.md) for more information.
+
+Redis-HA Setup
+==============
+
+See the [README.md](docker/redis-ha/README.md) for more information.
